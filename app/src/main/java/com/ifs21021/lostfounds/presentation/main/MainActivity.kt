@@ -12,8 +12,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.ifs21021.lostfounds.data.remote.response.DelcomTodosResponse
-import com.ifs21021.lostfounds.data.remote.response.TodosItemResponse
+import com.ifs21021.lostfounds.data.remote.response.DelcomLostFoundsResponse
+import com.ifs21021.lostfounds.data.remote.response.LostFoundsItemResponse
 import com.ifs21021.lostfounds.R
 import com.ifs21021.lostfounds.adapter.LostFoundsAdapter
 import com.ifs21021.lostfounds.data.remote.MyResult
@@ -22,6 +22,7 @@ import com.ifs21021.lostfounds.helper.Utils.Companion.observeOnce
 import com.ifs21021.lostfounds.presentation.ViewModelFactory
 import com.ifs21021.lostfounds.presentation.login.LoginActivity
 import com.ifs21021.lostfounds.presentation.lostfound.LostFoundDetailActivity
+import com.ifs21021.lostfounds.presentation.lostfound.LostFoundFavoriteActivity
 import com.ifs21021.lostfounds.presentation.lostfound.LostFoundManageActivity
 import com.ifs21021.lostfounds.presentation.profile.ProfileActivity
 
@@ -87,6 +88,20 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
 
+                R.id.mylostfound -> {
+                    observeGetMine()
+                    true
+                }
+
+                R.id.alllostfound-> {
+                    observeGetAll()
+                    true
+                }
+
+                R.id.mainMenuFavoriteTodos -> {
+                    openFavoriteLostFoundActivity()
+                    true
+                }
                 else -> false
             }
         }
@@ -104,7 +119,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun observeGetAll() {
+    private fun observeGetMine() {
         viewModel.getTodos().observe(this) { result ->
             if (result != null) {
                 when (result) {
@@ -126,7 +141,29 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadAllToLayout(response: DelcomTodosResponse) {
+    private fun observeGetAll() {
+        viewModel.getAllTodos().observe(this) { result ->
+            if (result != null) {
+                when (result) {
+                    is MyResult.Loading -> {
+                        showLoading(true)
+                    }
+
+                    is MyResult.Success -> {
+                        showLoading(false)
+                        loadAllToLayout(result.data)
+                    }
+
+                    is MyResult.Error -> {
+                        showLoading(false)
+                        showEmptyError(true)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun loadAllToLayout(response: DelcomLostFoundsResponse) {
         // Periksa apakah response atau data pada response null
         if (response == null) {
             // Handle null case appropriately, misalnya menampilkan pesan error atau melakukan tindakan lainnya
@@ -135,13 +172,13 @@ class MainActivity : AppCompatActivity() {
         } else if (response.data == null){
             Log.e("MainActivity", "response.data == null")
             return
-        } else if (response.data.todos == null){
+        } else if (response.data.lostfounds == null){
             Log.e("MainActivity", "response.data.todos == null")
             return
         }
 
         // Lanjutkan dengan pemrosesan data
-        val todos = response.data.todos
+        val todos = response.data.lostfounds
         val layoutManager = LinearLayoutManager(this)
         binding.rvMainTodos.layoutManager = layoutManager
         val itemDecoration = DividerItemDecoration(
@@ -162,7 +199,7 @@ class MainActivity : AppCompatActivity() {
             binding.rvMainTodos.adapter = adapter
             adapter.setOnItemClickCallback(object : LostFoundsAdapter.OnItemClickCallback {
                 override fun onCheckedChangeListener(
-                    todo: TodosItemResponse,
+                    todo: LostFoundsItemResponse,
                     isChecked: Boolean
                 ) {
                     adapter.filter(binding.svMain.query.toString())
@@ -275,6 +312,14 @@ class MainActivity : AppCompatActivity() {
             LostFoundManageActivity::class.java
         )
         intent.putExtra(LostFoundManageActivity.KEY_IS_ADD, true)
+        launcher.launch(intent)
+    }
+
+    private fun openFavoriteLostFoundActivity() {
+        val intent = Intent(
+            this@MainActivity,
+            LostFoundFavoriteActivity::class.java
+        )
         launcher.launch(intent)
     }
 }

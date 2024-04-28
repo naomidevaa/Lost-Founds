@@ -9,16 +9,18 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.ifs21021.lostfounds.data.remote.response.TodosItemResponse
+import com.bumptech.glide.Glide
+import com.ifs21021.lostfounds.data.remote.response.LostFoundsItemResponse
 import com.ifs21021.lostfounds.databinding.ItemRowLostfoundBinding
 
+
 class LostFoundsAdapter :
-    ListAdapter<TodosItemResponse,
+    ListAdapter<LostFoundsItemResponse,
             LostFoundsAdapter.MyViewHolder>(DIFF_CALLBACK) {
 
     private lateinit var onItemClickCallback: OnItemClickCallback
-    private var originalData = mutableListOf<TodosItemResponse>()
-    private var filteredData = mutableListOf<TodosItemResponse>()
+    private var originalData = mutableListOf<LostFoundsItemResponse>()
+    private var filteredData = mutableListOf<LostFoundsItemResponse>()
 
     fun setOnItemClickCallback(onItemClickCallback: OnItemClickCallback) {
         this.onItemClickCallback = onItemClickCallback
@@ -56,7 +58,7 @@ class LostFoundsAdapter :
     class MyViewHolder(val binding: ItemRowLostfoundBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(data: TodosItemResponse) {
+        fun bind(data: LostFoundsItemResponse) {
             binding.apply {
                 tvItemLostFoundTitle.text = data.title
                 cbItemLostFoundIsFinished.isChecked = data.isCompleted == 1
@@ -69,6 +71,11 @@ class LostFoundsAdapter :
                 }
                 // Menetapkan teks status yang sudah disorot ke TextView
                 tvStatus.text = statusText
+                data.cover?.let { coverUrl ->
+                    Glide.with(itemView)
+                        .load(coverUrl)
+                        .into(ivLostFoundItem)
+                }
             }
         }
 
@@ -80,7 +87,7 @@ class LostFoundsAdapter :
         }
     }
 
-    fun submitOriginalList(list: List<TodosItemResponse>) {
+    fun submitOriginalList(list: List<LostFoundsItemResponse>) {
         originalData = list.toMutableList()
         filteredData = list.toMutableList()
 
@@ -100,22 +107,22 @@ class LostFoundsAdapter :
     }
 
     interface OnItemClickCallback {
-        fun onCheckedChangeListener(todo: TodosItemResponse, isChecked: Boolean)
+        fun onCheckedChangeListener(todo: LostFoundsItemResponse, isChecked: Boolean)
         fun onClickDetailListener(todoId: Int)
     }
 
     companion object {
-        val DIFF_CALLBACK = object : DiffUtil.ItemCallback<TodosItemResponse>() {
+        val DIFF_CALLBACK = object : DiffUtil.ItemCallback<LostFoundsItemResponse>() {
             override fun areItemsTheSame(
-                oldItem: TodosItemResponse,
-                newItem: TodosItemResponse
+                oldItem: LostFoundsItemResponse,
+                newItem: LostFoundsItemResponse
             ): Boolean {
                 return oldItem.id == newItem.id
             }
 
             override fun areContentsTheSame(
-                oldItem: TodosItemResponse,
-                newItem: TodosItemResponse
+                oldItem: LostFoundsItemResponse,
+                newItem: LostFoundsItemResponse
             ): Boolean {
                 return oldItem == newItem
             }

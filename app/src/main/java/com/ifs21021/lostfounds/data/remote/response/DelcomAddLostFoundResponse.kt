@@ -2,10 +2,10 @@ package com.ifs21021.lostfounds.data.remote.response
 
 import com.google.gson.annotations.SerializedName
 
-data class DelcomAddTodoResponse(
+data class DelcomAddLostFoundResponse(
 
 	@field:SerializedName("data")
-	val data: DataAddTodoResponse,
+	val data: DataAddLostFoundResponse,
 
 	@field:SerializedName("success")
 	val success: Boolean,
@@ -14,7 +14,7 @@ data class DelcomAddTodoResponse(
 	val message: String
 )
 
-data class DataAddTodoResponse(
+data class DataAddLostFoundResponse(
 
 	@field:SerializedName("todo_id")
 	val todoId: Int

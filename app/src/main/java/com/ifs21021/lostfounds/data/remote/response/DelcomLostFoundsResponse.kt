@@ -2,9 +2,9 @@ package com.ifs21021.lostfounds.data.remote.response
 
 import com.google.gson.annotations.SerializedName
 
-data class DelcomTodosResponse(
+data class DelcomLostFoundsResponse(
 	@field:SerializedName("data")
-	val data: DataTodosResponse,
+	val data: DataLostFoundsResponse,
 
 	@field:SerializedName("success")
 	val success: Boolean,
@@ -13,7 +13,7 @@ data class DelcomTodosResponse(
 	val message: String
 )
 
-data class TodosItemResponse(
+data class LostFoundsItemResponse(
 	@field:SerializedName("cover")
 	val cover: String?,
 
@@ -42,9 +42,9 @@ data class TodosItemResponse(
 	var isMe: Int
 )
 
-data class DataTodosResponse(
+data class DataLostFoundsResponse(
 	@field:SerializedName("lost_founds")
-	val todos: List<TodosItemResponse>
+	val lostfounds: List<LostFoundsItemResponse>
 )
 
 

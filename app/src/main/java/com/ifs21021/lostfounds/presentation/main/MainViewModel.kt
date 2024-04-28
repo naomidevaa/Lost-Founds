@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
+import com.ifs21021.lostfounds.data.remote.response.DelcomLostFoundsResponse
 import com.ifs21021.lostfounds.data.remote.response.DelcomResponse
-import com.ifs21021.lostfounds.data.remote.response.DelcomTodosResponse
 import com.ifs21021.lostfounds.data.pref.UserModel
 import com.ifs21021.lostfounds.data.remote.MyResult
 import com.ifs21021.lostfounds.data.remote.retrofit.IApiService
@@ -33,8 +33,11 @@ class MainViewModel(
         }
     }
 
-    fun getTodos(): LiveData<MyResult<DelcomTodosResponse>> {
+    fun getTodos(): LiveData<MyResult<DelcomLostFoundsResponse>> {
         return lostFoundRepository.getAll(null, 1, null).asLiveData()
+    }
+    fun getAllTodos(): LiveData<MyResult<DelcomLostFoundsResponse>> {
+        return lostFoundRepository.getAll(null, 0, null).asLiveData()
     }
 
     fun putTodo(

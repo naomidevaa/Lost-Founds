@@ -1,17 +1,21 @@
 package com.ifs21021.lostfounds.data.remote.retrofit
 
-import com.ifs21021.lostfounds.data.remote.response.DelcomAddTodoResponse
+import com.ifs21021.lostfounds.data.remote.response.DelcomAddLostFoundResponse
 import com.ifs21021.lostfounds.data.remote.response.DelcomLoginResponse
 import com.ifs21021.lostfounds.data.remote.response.DelcomResponse
-import com.ifs21021.lostfounds.data.remote.response.DelcomTodoResponse
-import com.ifs21021.lostfounds.data.remote.response.DelcomTodosResponse
+import com.ifs21021.lostfounds.data.remote.response.DelcomLostFoundResponse
+import com.ifs21021.lostfounds.data.remote.response.DelcomLostFoundsResponse
 import com.ifs21021.lostfounds.data.remote.response.DelcomUserResponse
+import okhttp3.MultipartBody
+
 import retrofit2.http.DELETE
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -40,7 +44,7 @@ interface IApiService {
         @Field("title") title: String,
         @Field("description") description: String,
         @Field("status") status: String,
-    ): DelcomAddTodoResponse
+    ): DelcomAddLostFoundResponse
 
     @FormUrlEncoded
     @PUT("lost-founds/{id}")
@@ -57,15 +61,30 @@ interface IApiService {
         @Query("is_completed") isCompleted: Int?,
         @Query("is_me") isMe: Int?,
         @Query("status") status: String?,
-    ): DelcomTodosResponse
+    ): DelcomLostFoundsResponse
 
     @GET("lost-founds/{id}")
     suspend fun getDetail(
         @Path("id") lostFoundId: Int,
-    ): DelcomTodoResponse
+    ): DelcomLostFoundResponse
 
     @DELETE("lost-founds/{id}")
     suspend fun delete(
         @Path("id") lostFoundId: Int,
     ): DelcomResponse
+
+    @Multipart
+    @POST("lost-founds/{id}/cover")
+    suspend fun addCoverLostFound(
+        @Path("id") lostFoundId: Int,
+        @Part cover: MultipartBody.Part,
+    ): DelcomResponse
+
+    @Multipart
+    @POST("users/photo")
+    suspend fun  addphoto(
+        @Part photo :MultipartBody.Part,
+    ):DelcomResponse
+
+
 }

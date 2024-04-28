@@ -16,7 +16,7 @@
             android:id="@+id/appbarLostFoundDetail"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="#0188A4"
+            android:background="#8060BA"
             app:navigationIcon="@drawable/ic_arrow_back_24"
             app:navigationIconTint="@color/white"
             app:title="Detail Lost Found"
@@ -46,10 +46,12 @@
                 android:orientation="vertical">
 
                 <ImageView
-                    android:id="@+id/imageView2"
+                    android:id="@+id/ivLostFoundDetailCover"
                     android:layout_width="match_parent"
                     android:layout_height="130dp"
-                    tools:srcCompat="@tools:sample/backgrounds/scenic" />
+                    android:paddingBottom="5dp"
+                    android:paddingTop="12dp"
+                    app:srcCompat="@drawable/ic_image_24" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -157,6 +159,14 @@
                 android:layout_gravity="right"
                 android:gravity="end"
                 android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/ivLostFoundDetailActionFavorite"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginEnd="10dp"
+                    app:srcCompat="@drawable/ic_favorite_border_24"
+                    tools:ignore="UseAppTint" />
 
                 <ImageView
                     android:id="@+id/ivLostFoundDetailActionEdit"

@@ -12,7 +12,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.ifs21021.lostfounds.data.remote.response.TodoResponse
+import com.bumptech.glide.Glide
+import com.ifs21021.lostfounds.data.remote.response.LostFoundResponse
+import com.ifs21021.lostfounds.R
+import com.ifs21021.lostfounds.data.local.entity.DelcomLostFoundEntity
 import com.ifs21021.lostfounds.data.model.LostFound
 import com.ifs21021.lostfounds.data.remote.MyResult
 import com.ifs21021.lostfounds.databinding.ActivityLostfoundDetailBinding
@@ -25,6 +28,8 @@ class LostFoundDetailActivity : AppCompatActivity() {
         ViewModelFactory.getInstance(this)
     }
     private var isChanged: Boolean = false
+    private var isFavorite: Boolean = false
+    private var delcomLostFound: DelcomLostFoundEntity? = null
 
     private val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -90,7 +95,7 @@ class LostFoundDetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadTodo(todo: TodoResponse?) {
+    private fun loadTodo(todo: LostFoundResponse?) {
         if (todo != null) {
             showComponent(true)
 
@@ -99,6 +104,36 @@ class LostFoundDetailActivity : AppCompatActivity() {
                 tvLostFoundDetailDate.text = "Diposting pada: ${todo.createdAt}"
                 tvLostFoundDetailDesc.text = todo.description
 
+                viewModel.getLocalLostFound(todo.id).observeOnce {
+                    if(it != null){
+                        delcomLostFound = it
+                        setFavorite(true)
+                    }else{
+                        setFavorite(false)
+                    }
+                }
+
+                //
+                if(todo.cover != null){
+                    ivLostFoundDetailCover.visibility = View.VISIBLE
+
+                    Glide.with(this@LostFoundDetailActivity)
+                        .load(todo.cover)
+                        .placeholder(R.drawable.ic_image_24)
+                        .into(ivLostFoundDetailCover)
+
+                }else{
+                    ivLostFoundDetailCover.visibility = View.GONE
+                }
+                viewModel.getLocalLostFound(todo.id).observeOnce {
+                    if(it != null){
+                        delcomLostFound = it
+                        setFavorite(true)
+                    }else{
+                        setFavorite(false)
+                    }
+                }
+
                 cbLostFoundDetailIsFinished.isChecked = todo.isCompleted == 1
 
                 val statusText = if (todo.status.equals("found", ignoreCase = true)) {
@@ -106,7 +141,7 @@ class LostFoundDetailActivity : AppCompatActivity() {
                     highlightText("Found", Color.GREEN)
                 } else {
                     // Jika status "lost", maka gunakan warna kuning
-                    highlightText("Lost", Color.YELLOW)
+                    highlightText("Lost", Color.RED)
                 }
                 // Menetapkan teks status yang sudah disorot ke TextView
                 tvStatusDetail.text = statusText
@@ -124,13 +159,13 @@ class LostFoundDetailActivity : AppCompatActivity() {
                                 if (isChecked) {
                                     Toast.makeText(
                                         this@LostFoundDetailActivity,
-                                        "Gagal menyelesaikan todo: " + todo.title,
+                                        "Gagal menyelesaikan lost and found: " + todo.title,
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 } else {
                                     Toast.makeText(
                                         this@LostFoundDetailActivity,
-                                        "Gagal batal menyelesaikan todo: " + todo.title,
+                                        "Gagal batal menyelesaikan lost and found: " + todo.title,
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }
@@ -158,6 +193,40 @@ class LostFoundDetailActivity : AppCompatActivity() {
 
                             else -> {}
                         }
+                    }
+                }
+
+                ivLostFoundDetailActionFavorite.setOnClickListener {
+                    if(isFavorite){
+                        setFavorite(false)
+                        if(delcomLostFound != null){
+                            viewModel.deleteLocalTodo(delcomLostFound!!)
+                        }
+                        Toast.makeText(
+                            this@LostFoundDetailActivity,
+                            "LostFound berhasil dihapus dari daftar favorite",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }else{
+                        delcomLostFound = DelcomLostFoundEntity(
+                            id = todo.id,
+                            title = todo.title,
+                            description = todo.description,
+                            isCompleted = todo.isCompleted,
+                            cover = todo.cover,
+                            createdAt = todo.createdAt,
+                            updatedAt = todo.updatedAt,
+                            status = "", // Anda perlu memberikan nilai default untuk status
+                            isMe = 1, // Anda perlu memberikan nilai default untuk userId
+                        )
+
+                        setFavorite(true)
+                        viewModel.insertLocalTodo(delcomLostFound!!)
+                        Toast.makeText(
+                            this@LostFoundDetailActivity,
+                            "LostFound berhasil ditambahkan ke daftar favorite",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
 
@@ -208,6 +277,17 @@ class LostFoundDetailActivity : AppCompatActivity() {
         }
     }
 
+    private fun setFavorite(status: Boolean){
+        isFavorite = status
+        if(status){
+            binding.ivLostFoundDetailActionFavorite
+                .setImageResource(R.drawable.ic_favorite_24)
+        }else{
+            binding.ivLostFoundDetailActionFavorite
+                .setImageResource(R.drawable.ic_favorite_border_24)
+        }
+    }
+
     private fun highlightText(text: String, color: Int): SpannableString {
         val spannableString = SpannableString(text)
         spannableString.setSpan(ForegroundColorSpan(color), 0, text.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -237,6 +317,11 @@ class LostFoundDetailActivity : AppCompatActivity() {
                         "Berhasil menghapus item",
                         Toast.LENGTH_SHORT
                     ).show()
+                    viewModel.getLocalLostFound(todoId).observeOnce {
+                        if(it != null){
+                            viewModel.deleteLocalTodo(it)
+                        }
+                    }
 
                     val resultIntent = Intent()
                     resultIntent.putExtra(KEY_IS_CHANGED, true)
